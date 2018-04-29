@@ -18,16 +18,33 @@
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="8*"></RowDefinition>
-            <RowDefinition Height="1*"></RowDefinition>
+            <RowDefinition Height="2*"></RowDefinition>
         </Grid.RowDefinitions>
         <StackPanel Grid.Column="0" Grid.Row="0" AllowDrop="True" CanDrag="True">
             <RelativePanel>
                 <TextBlock Name="Make" Text="{Binding Make}"></TextBlock>
                 <TextBlock Name="Model" RelativePanel.Below="Make" Text="{Binding Model}"></TextBlock>
-                <TextBlock Name="FStop" RelativePanel.Below="Model" RelativePanel.AlignRightWithPanel="True" Text="{Binding FStop}"></TextBlock>
-                <TextBlock Name="ExposureTime" RelativePanel.Below="FStop" RelativePanel.AlignRightWithPanel="True" Text="{Binding ExposureTime}"></TextBlock>
-                <TextBlock Name="ISOSpeed" RelativePanel.Below="ExposureTime" RelativePanel.AlignRightWithPanel="True" Text="{Binding ISOSpeed}"></TextBlock>
-                <TextBlock Name="ExposureBias" RelativePanel.Below="ISOSpeed" RelativePanel.AlignRightWithPanel="True" Text="{Binding ExposureBias}"></TextBlock>
+                <StackPanel Name="FStopPanel" Orientation="Horizontal" RelativePanel.Below="Model" RelativePanel.AlignRightWithPanel="True" >
+                    <TextBlock Padding="0,0,10,0">FStop:</TextBlock>
+                    <TextBlock Text="{Binding FStop}"></TextBlock>
+                </StackPanel>
+                <StackPanel Name="ExposureTimePanel" Orientation="Horizontal" RelativePanel.Below="FStopPanel" RelativePanel.AlignRightWithPanel="True" >
+                    <TextBlock Padding="0,0,10,0">Exposure Time:</TextBlock>
+                    <TextBlock Text="{Binding ExposureTime}"></TextBlock>
+                </StackPanel>
+                <StackPanel Name="AperturePanel" Orientation="Horizontal" RelativePanel.Below="ExposureTimePanel" RelativePanel.AlignRightWithPanel="True" Visibility="{Binding HasAperture}">
+                    <TextBlock Padding="0,0,10,0">Aperture:</TextBlock>
+                    <TextBlock Text="{Binding Aperture}"></TextBlock>
+                </StackPanel>
+                <StackPanel Name="ISOSpeedPanel" Orientation="Horizontal" RelativePanel.Below="AperturePanel" RelativePanel.AlignRightWithPanel="True">
+                    <TextBlock Padding="0,0,10,0">ISO Speed:</TextBlock>
+                    <TextBlock Text="{Binding ISOSpeed}"></TextBlock>
+                </StackPanel>
+                <StackPanel Name="ExposureBiasPanel" Orientation="Horizontal" RelativePanel.Below="ISOSpeedPanel" RelativePanel.AlignRightWithPanel="True" >
+                    <TextBlock Padding="0,0,10,0">Exposure Bias:</TextBlock>
+                    <TextBlock Text="{Binding ExposureBias}"></TextBlock>
+                </StackPanel>
+                
             </RelativePanel>
 
         </StackPanel>
@@ -38,9 +55,9 @@
                 <RowDefinition Height="1*"/>
             </Grid.RowDefinitions>
             <Border Grid.Row="1" BorderBrush="WhiteSmoke" BorderThickness="2" Margin="5">
-                <Image Source="{Binding CurrentImage}" Stretch="Fill" />
+                <Image Source="{Binding CurrentImage}" Stretch="Uniform" />
             </Border>
-            <Button Grid.Row="2" Foreground="Black" Background="White" Command="{Binding GetFileCommand}" Content="Select A Different File..." Margin="0,25.333,0,94.333"></Button>
+            <Button Grid.Row="2" Foreground="Black" Background="White" Command="{Binding GetFileCommand}" Content="Select A Different File..."></Button>
         </Grid>
         <ItemsControl Grid.Column="2" Grid.Row="0" ItemsSource="{Binding TopColors}">
             <ItemsControl.ItemTemplate>

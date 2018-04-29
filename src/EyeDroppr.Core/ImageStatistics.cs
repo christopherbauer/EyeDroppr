@@ -91,7 +91,16 @@ namespace Core
         {
             var properties = await storageFile.GetBasicPropertiesAsync();
             var specificProperties = await properties.RetrievePropertiesAsync(MetaDataProperties.Select(pair => pair.Value).ToList());
-            return specificProperties.ToDictionary(pair => (SystemProperty)MetaDataProperties.Single(valuePair => valuePair.Value == pair.Key.ToString()).Key, pair => pair.Value.ToString());
+            Dictionary<SystemProperty, string> dictionary = new Dictionary<SystemProperty, string>();
+            foreach (var property in specificProperties)
+            {
+                if (MetaDataProperties.ContainsValue(property.Key) && property.Value != null)
+                {
+                    dictionary.Add((SystemProperty)MetaDataProperties.Single(valuePair => valuePair.Value == property.Key)
+                        .Key, property.Value.ToString());
+                }
+            }
+            return dictionary;
         }
 
         /// <summary>
@@ -110,8 +119,8 @@ namespace Core
             {(int) SystemProperty.ShutterSpeedNumerator, "System.Photo.ShutterSpeedNumerator"},
             {(int) SystemProperty.ShutterSpeedDenominator, "System.Photo.ShutterSpeedDenominator"},
             {(int) SystemProperty.Aperture, "System.Photo.Aperture"},
-//            {(int) SystemProperty.LensModel, "System.Photo.LensModel"},
-//            {(int) SystemProperty.LensManufacturer, "System.Photo.LensManufacturer"},
+            {(int) SystemProperty.LensModel, "System.Photo.LensModel"},
+            {(int) SystemProperty.LensManufacturer, "System.Photo.LensManufacturer"},
             {(int) SystemProperty.Flash, "System.Photo.Flash"},
             {(int) SystemProperty.ExposureBias, "System.Photo.ExposureBias"},
         };

@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Windows.UI.Xaml.Media;
@@ -14,46 +12,6 @@ namespace EyeDroppr
     using Windows.Storage.Pickers;
 
     using Core;
-
-    public static class Logger
-    {
-        private static readonly Stopwatch AppTimer;
-        private static LoggerMode _mode = LoggerMode.Total;
-        private static TimeSpan _lastLog;
-
-        static Logger()
-        {
-            AppTimer = new Stopwatch();
-            AppTimer.Start();
-        }
-
-        public static void SetMode(LoggerMode mode)
-        {
-            _mode = mode;
-        }
-
-        public static void Log(string messge, [CallerMemberName]string callerMemberName = null)
-        {
-            var logTime = AppTimer.Elapsed;
-            TimeSpan reportLogTime;
-            if (_mode == LoggerMode.Difference)
-            {
-                reportLogTime = logTime.Subtract(_lastLog);
-            }
-           else if (_mode == LoggerMode.Total)
-           {
-               reportLogTime = logTime;
-           }
-            _lastLog = logTime;
-            Debug.WriteLine("{3}{0}: {1} ({2})", reportLogTime, messge, callerMemberName, (_mode == LoggerMode.Difference ? "+" : string.Empty));
-        }
-    }
-
-    public enum LoggerMode
-    {
-        Difference,
-        Total
-    }
 
     /// <summary>
     /// The main page view model.
@@ -71,6 +29,7 @@ namespace EyeDroppr
         private ImageSource _currentImage;
         private string _exposureBias;
         protected string _watchFolderLocation;
+        private string _aperture;
 
         public MainPageViewModel()
         {
@@ -95,7 +54,7 @@ namespace EyeDroppr
                 filesList.Add(new FileModel
                 {
                      FileName = storageFile.Name,
-                     FileImage = CurrentImage
+                     FileImage = await GetImageSource(storageFile)
                 });
             }
             FolderContents = filesList;
@@ -126,12 +85,13 @@ namespace EyeDroppr
             var metaData = await data;
             Logger.Log("Metadata await end");
 
-            Make = metaData[SystemProperty.CameraManufacturer];
-            Model = metaData[SystemProperty.CameraModel];
-            ExposureTime = string.Format("1/{0}",1/Convert.ToDouble(metaData[SystemProperty.ExposureTime]));
-            ISOSpeed = metaData[SystemProperty.ISOSpeed];
-            FStop = string.Format("f/{0}", metaData[SystemProperty.FStop]);
-            ExposureBias = metaData[SystemProperty.ExposureBias];
+            Make = DisplayProperty<string>(metaData, SystemProperty.CameraManufacturer);
+            Model = DisplayProperty<string>(metaData, SystemProperty.CameraModel);
+            ExposureTime = $"1/{1 / DisplayProperty<double>(metaData, SystemProperty.ExposureTime)}";
+            ISOSpeed = DisplayProperty<string>(metaData, SystemProperty.ISOSpeed);
+            FStop = $"f/{DisplayProperty<string>(metaData, SystemProperty.FStop)}";
+            ExposureBias = DisplayProperty<string>(metaData, SystemProperty.ExposureBias);
+            Aperture = DisplayProperty<string>(metaData, SystemProperty.Aperture);
 
             var filterer = new ColorFilterer();
             Logger.Log("Color Counts await start");
@@ -139,6 +99,16 @@ namespace EyeDroppr
             Logger.Log("Color Counts await end");
 
             TopColors = filteredColors.Select(pair => new ColorStatistics { Color = pair.Key, Count = pair.Value }).ToList();
+        }
+
+        private static T DisplayProperty<T>(IDictionary<SystemProperty, string> metaData, SystemProperty systemProperty)
+        {
+            if (metaData.ContainsKey(systemProperty))
+            {
+                var s = metaData[systemProperty];
+                return (T) Convert.ChangeType(s, typeof(T));
+            }
+            return default(T);
         }
 
         public string ExposureBias
@@ -223,5 +193,17 @@ namespace EyeDroppr
             get { return _watchFolderLocation; }
             set { SetValue(ref _watchFolderLocation, value);}
         }
+
+        public string Aperture
+        {
+            get { return _aperture; }
+            set
+            {
+                SetValue(ref _aperture, value);
+                OnPropertyChanged(nameof(HasAperture));
+            }
+        }
+
+        public string HasAperture => string.IsNullOrEmpty(Aperture) ? "Collapsed" : "Visible";
     }
 }
