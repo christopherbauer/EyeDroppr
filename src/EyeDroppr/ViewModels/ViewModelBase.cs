@@ -1,8 +1,8 @@
-namespace EyeDroppr
-{
-    using System.ComponentModel;
-    using System.Runtime.CompilerServices;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
+namespace EyeDroppr.ViewModels
+{
     /// <summary>
     /// The view model base.
     /// </summary>

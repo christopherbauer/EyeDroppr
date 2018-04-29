@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using EyeDroppr.ViewModels;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 

@@ -97,17 +97,18 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ColorStatistics.cs" />
-    <Compile Include="DesignMainPageViewModel.cs" />
-    <Compile Include="FileModel.cs" />
-    <Compile Include="FileToImageConverter.cs" />
+    <Compile Include="ViewModels\ColorStatisticsViewModel.cs" />
+    <Compile Include="ViewModels\Designer\DesignMainPageViewModel.cs" />
+    <Compile Include="Converters\FileToImageConverter.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="MainPageViewModel.cs" />
+    <Compile Include="ViewModels\FileViewModel.cs" />
+    <Compile Include="ViewModels\MainPageViewModel.cs" />
+    <Compile Include="ViewModels\PhotoMetaDataViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SolidColorBrushConverter.cs" />
-    <Compile Include="ViewModelBase.cs" />
+    <Compile Include="Converters\SolidColorBrushConverter.cs" />
+    <Compile Include="ViewModels\ViewModelBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">

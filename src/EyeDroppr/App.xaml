@@ -3,6 +3,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:EyeDroppr"
+    xmlns:converters="using:EyeDroppr.Converters"
     RequestedTheme="Light">
 
     <Application.Resources>
@@ -20,7 +21,7 @@
                 <Color>#FFAAAAAA</Color>
             </SolidColorBrush.Color>
         </SolidColorBrush>
-        <local:SolidColorBrushConverter x:Key="BrushConverter" />
-        <local:FileToImageConverter x:Key="FileToImageConverter" />
+        <converters:SolidColorBrushConverter x:Key="BrushConverter" />
+        <converters:FileToImageConverter x:Key="FileToImageConverter" />
     </Application.Resources>
 </Application>

@@ -3,33 +3,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Windows.Storage;
+using Windows.Storage.Pickers;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
+using Core;
 
-namespace EyeDroppr
+namespace EyeDroppr.ViewModels
 {
-    using Windows.Storage;
-    using Windows.Storage.Pickers;
-
-    using Core;
-
     /// <summary>
     /// The main page view model.
     /// </summary>
     public class MainPageViewModel : ViewModelBase
     {
-        private IList<ColorStatistics> _topColors;
+        private IList<ColorStatisticsViewModel> _topColors;
         private IStorageFile _currentFile;
-        private string _make;
-        private string _model;
-        private string _exposureTime;
-        private string _isoSpeed;
-        private string _fStop;
-        private IList<FileModel> _folderContents;
+        
+        private IList<FileViewModel> _folderContents;
         private ImageSource _currentImage;
-        private string _exposureBias;
         protected string _watchFolderLocation;
-        private string _aperture;
+        private PhotoMetaDataViewModel _photoMetaDataViewModel;
 
         public MainPageViewModel()
         {
@@ -48,10 +41,10 @@ namespace EyeDroppr
             WatchFolderLocation = folder.Path;
 
             var filesAsync = await folder.GetFilesAsync();
-            var filesList = new List<FileModel>();
+            var filesList = new List<FileViewModel>();
             foreach (var storageFile in filesAsync)
             {
-                filesList.Add(new FileModel
+                filesList.Add(new FileViewModel
                 {
                      FileName = storageFile.Name,
                      FileImage = await GetImageSource(storageFile)
@@ -85,37 +78,16 @@ namespace EyeDroppr
             var metaData = await data;
             Logger.Log("Metadata await end");
 
-            Make = DisplayProperty<string>(metaData, SystemProperty.CameraManufacturer);
-            Model = DisplayProperty<string>(metaData, SystemProperty.CameraModel);
-            ExposureTime = $"1/{1 / DisplayProperty<double>(metaData, SystemProperty.ExposureTime)}";
-            ISOSpeed = DisplayProperty<string>(metaData, SystemProperty.ISOSpeed);
-            FStop = $"f/{DisplayProperty<string>(metaData, SystemProperty.FStop)}";
-            ExposureBias = DisplayProperty<string>(metaData, SystemProperty.ExposureBias);
-            Aperture = DisplayProperty<string>(metaData, SystemProperty.Aperture);
+            PhotoMetaDataViewModel = new PhotoMetaDataViewModel(metaData);
 
             var filterer = new ColorFilterer();
             Logger.Log("Color Counts await start");
             var filteredColors = filterer.GetTopColors(await colorCounts, 10);
             Logger.Log("Color Counts await end");
 
-            TopColors = filteredColors.Select(pair => new ColorStatistics { Color = pair.Key, Count = pair.Value }).ToList();
+            TopColors = filteredColors.Select(pair => new ColorStatisticsViewModel(pair.Key, pair.Value)).ToList();
         }
 
-        private static T DisplayProperty<T>(IDictionary<SystemProperty, string> metaData, SystemProperty systemProperty)
-        {
-            if (metaData.ContainsKey(systemProperty))
-            {
-                var s = metaData[systemProperty];
-                return (T) Convert.ChangeType(s, typeof(T));
-            }
-            return default(T);
-        }
-
-        public string ExposureBias
-        {
-            get { return _exposureBias; }
-            set { SetValue(ref _exposureBias, value); }
-        }
 
         public ImageSource CurrentImage
         {
@@ -140,7 +112,7 @@ namespace EyeDroppr
             set { SetValue(ref _currentFile, value); }
         }
 
-        public IList<ColorStatistics> TopColors
+        public IList<ColorStatisticsViewModel> TopColors
         {
             get { return this._topColors; }
             set { this.SetValue(ref this._topColors, value); }
@@ -152,37 +124,8 @@ namespace EyeDroppr
         public ICommand GetFileCommand { get; set; }
         public ICommand ChangeFolderCommand { get; set; }
 
-        public string Make
-        {
-            get { return _make; }
-            set { SetValue(ref _make, value); }
-        }
 
-        public string Model
-        {
-            get { return _model; }
-            set { SetValue(ref _model, value);}
-        }
-
-        public string ExposureTime
-        {
-            get { return _exposureTime; }
-            set { SetValue(ref _exposureTime, value); }
-        }
-
-        public string ISOSpeed
-        {
-            get { return _isoSpeed; }
-            set { SetValue(ref _isoSpeed, value); }
-        }
-
-        public string FStop
-        {
-            get { return _fStop; }
-            set { SetValue(ref _fStop, value); }
-        }
-
-        public IList<FileModel> FolderContents
+        public IList<FileViewModel> FolderContents
         {
             get { return _folderContents; }
             set { SetValue(ref _folderContents, value); }
@@ -194,16 +137,10 @@ namespace EyeDroppr
             set { SetValue(ref _watchFolderLocation, value);}
         }
 
-        public string Aperture
+        public PhotoMetaDataViewModel PhotoMetaDataViewModel
         {
-            get { return _aperture; }
-            set
-            {
-                SetValue(ref _aperture, value);
-                OnPropertyChanged(nameof(HasAperture));
-            }
+            get { return _photoMetaDataViewModel; }
+            set { SetValue(ref _photoMetaDataViewModel, value); }
         }
-
-        public string HasAperture => string.IsNullOrEmpty(Aperture) ? "Collapsed" : "Visible";
     }
 }
