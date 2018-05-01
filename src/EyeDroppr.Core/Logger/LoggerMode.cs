@@ -1,4 +1,4 @@
-namespace Core
+namespace Core.Logger
 {
     public enum LoggerMode
     {

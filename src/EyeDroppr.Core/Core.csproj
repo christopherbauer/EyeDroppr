@@ -116,8 +116,9 @@
     <Compile Include="ColorFilterer.cs" />
     <Compile Include="ColorHelper.cs" />
     <Compile Include="ImageStatistics.cs" />
-    <Compile Include="Logger.cs" />
-    <Compile Include="LoggerMode.cs" />
+    <Compile Include="Logger\Logger.cs" />
+    <Compile Include="Logger\LoggerMode.cs" />
+    <Compile Include="Logger\LoggerVerbosity.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

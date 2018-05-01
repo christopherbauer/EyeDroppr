@@ -1,3 +1,4 @@
+using System.Windows.Input;
 using Windows.UI.Xaml.Media;
 
 namespace EyeDroppr.ViewModels
@@ -6,5 +7,7 @@ namespace EyeDroppr.ViewModels
     {
         public string FileName { get; set; }
         public ImageSource FileImage { get; set; }
+
+        public ICommand ClickPhotoCommand { get; set; }
     }
 }

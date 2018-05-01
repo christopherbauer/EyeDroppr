@@ -24,4 +24,28 @@ namespace EyeDroppr
 
         public event EventHandler CanExecuteChanged;
     }
+
+    public class ActionCommand<T> : ICommand
+    {
+        private readonly Action<T> _theAction;
+        private readonly T _paramterValue;
+
+        public ActionCommand(Action<T> theAction, T paramterValue)
+        {
+            _theAction = theAction;
+            _paramterValue = paramterValue;
+        }
+
+        public bool CanExecute(object parameter)
+        {
+            return true;
+        }
+
+        public void Execute(object parameter)
+        {
+            _theAction.Invoke(_paramterValue);
+        }
+
+        public event EventHandler CanExecuteChanged;
+    }
 }

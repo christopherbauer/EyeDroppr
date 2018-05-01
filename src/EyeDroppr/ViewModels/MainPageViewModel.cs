@@ -8,6 +8,7 @@ using Windows.Storage.Pickers;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 using Core;
+using Core.Logger;
 
 namespace EyeDroppr.ViewModels
 {
@@ -26,8 +27,8 @@ namespace EyeDroppr.ViewModels
 
         public MainPageViewModel()
         {
-            GetFileCommand = new ActionCommand(this.GetFile);
-            ChangeFolderCommand = new ActionCommand(this.ChangeFolder);
+            GetFileCommand = new ActionCommand(GetFile);
+            ChangeFolderCommand = new ActionCommand(ChangeFolder);
         }
 
         private async void ChangeFolder()
@@ -44,13 +45,21 @@ namespace EyeDroppr.ViewModels
             var filesList = new List<FileViewModel>();
             foreach (var storageFile in filesAsync)
             {
-                filesList.Add(new FileViewModel
+                var fileViewModel = new FileViewModel()
                 {
-                     FileName = storageFile.Name,
-                     FileImage = await GetImageSource(storageFile)
-                });
+                    FileName = storageFile.Name,
+                    FileImage = await GetImageSource(storageFile),
+                };
+                fileViewModel.ClickPhotoCommand = new ActionCommand<string>(LoadFileCommand, fileViewModel.FileName);
+                filesList.Add(fileViewModel);
             }
             FolderContents = filesList;
+        }
+
+        private async void LoadFileCommand(string obj)
+        {
+            var file = StorageFile.GetFileFromPathAsync(obj);
+            await LoadFile(file.GetResults());
         }
 
         private async void GetFile()
@@ -64,16 +73,21 @@ namespace EyeDroppr.ViewModels
             filePicker.SuggestedStartLocation = PickerLocationId.Desktop;
             filePicker.CommitButtonText = "Open";
             CurrentFile = await filePicker.PickSingleFileAsync();
-            CurrentImage = await GetImageSource(CurrentFile);
+            await LoadFile(CurrentFile);
+        }
+
+        private async Task LoadFile(IStorageFile currentFile)
+        {
+            CurrentImage = await GetImageSource(currentFile);
 
             var statistics = new ImageStatistics();
 
             Logger.Log("Metadata start");
-            var data = statistics.GetMetaData(CurrentFile);
+            var data = statistics.GetMetaData(currentFile);
 
             Logger.Log("Color Counts start");
-            var colorCounts = statistics.GetColorCounts(CurrentFile);
-            
+            var colorCounts = statistics.GetColorCounts(currentFile);
+
             Logger.Log("Metadata await start");
             var metaData = await data;
             Logger.Log("Metadata await end");
@@ -89,12 +103,6 @@ namespace EyeDroppr.ViewModels
         }
 
 
-        public ImageSource CurrentImage
-        {
-            get { return _currentImage; }
-            set { SetValue(ref _currentImage, value); }
-        }
-
         private async Task<BitmapImage> GetImageSource(IStorageFile storageFile)
         {
             var bitmapImage = new BitmapImage();
@@ -106,41 +114,45 @@ namespace EyeDroppr.ViewModels
             return bitmapImage;
         }
 
-        public IStorageFile CurrentFile
-        {
-            get { return _currentFile; }
-            set { SetValue(ref _currentFile, value); }
-        }
-
-        public IList<ColorStatisticsViewModel> TopColors
-        {
-            get { return this._topColors; }
-            set { this.SetValue(ref this._topColors, value); }
-        }
-
         /// <summary>
         /// Gets or sets the get file command.
         /// </summary>
         public ICommand GetFileCommand { get; set; }
         public ICommand ChangeFolderCommand { get; set; }
+        public ImageSource CurrentImage
+        {
+            get => _currentImage;
+            set => SetValue(ref _currentImage, value);
+        }
 
+        public IStorageFile CurrentFile
+        {
+            get => _currentFile;
+            set => SetValue(ref _currentFile, value);
+        }
+
+        public IList<ColorStatisticsViewModel> TopColors
+        {
+            get => _topColors;
+            set => SetValue(ref _topColors, value);
+        }
 
         public IList<FileViewModel> FolderContents
         {
-            get { return _folderContents; }
-            set { SetValue(ref _folderContents, value); }
+            get => _folderContents;
+            set => SetValue(ref _folderContents, value);
         }
 
         public string WatchFolderLocation
         {
-            get { return _watchFolderLocation; }
-            set { SetValue(ref _watchFolderLocation, value);}
+            get => _watchFolderLocation;
+            set => SetValue(ref _watchFolderLocation, value);
         }
 
         public PhotoMetaDataViewModel PhotoMetaDataViewModel
         {
-            get { return _photoMetaDataViewModel; }
-            set { SetValue(ref _photoMetaDataViewModel, value); }
+            get => _photoMetaDataViewModel;
+            set => SetValue(ref _photoMetaDataViewModel, value);
         }
     }
 }

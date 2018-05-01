@@ -5,6 +5,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
 using Core;
+using Core.Logger;
 
 namespace EyeDroppr
 {
@@ -20,7 +21,7 @@ namespace EyeDroppr
         public App()
         {
             this.InitializeComponent();
-            Logger.SetMode(LoggerMode.Difference);
+            Logger.SetMode(LoggerMode.Difference, LoggerVerbosity.Verbose);
             this.Suspending += OnSuspending;
         }
 
